@@ -33,7 +33,8 @@ GtkWidget	*g_osd_yoffset		= NULL;
 GtkWidget	*g_osd_timeout		= NULL;
 GtkWidget	*g_osd_shadow		= NULL;
 GtkWidget	*g_osd_lines		= NULL;
-GtkWidget	*g_osd_msgs		= NULL;
+GtkWidget	*g_osd_non_msgs		= NULL;
+GtkWidget	*g_osd_msg_text		= NULL;
 GtkTooltips	*g_tooltips		= NULL;
 
 
@@ -48,7 +49,8 @@ static int		osd_shadow		= 1;
 static int		osd_lines		= 1;
 static int		osd_xoffset		= 20;
 static int		osd_yoffset		= 20;
-static int		osd_msgs		= 0;
+static int		osd_non_msgs	= 0;
+static int		osd_msg_text	= 0;
 
 /* the xosd information. */
 static PurplePlugin	*my_plugin		= NULL;
@@ -162,7 +164,8 @@ static void osd_init_prefs(void) {
 	purple_prefs_add_int("/plugins/gtk/X11/pidgin-osd/lines", osd_lines);
 	purple_prefs_add_int("/plugins/gtk/X11/pidgin-osd/xoffset", osd_xoffset);
 	purple_prefs_add_int("/plugins/gtk/X11/pidgin-osd/yoffset", osd_yoffset);
-	purple_prefs_add_int("/plugins/gtk/X11/pidgin-osd/msgs", osd_msgs);
+	purple_prefs_add_int("/plugins/gtk/X11/pidgin-osd/non_msgs", osd_non_msgs);
+	purple_prefs_add_int("/plugins/gtk/X11/pidgin-osd/msg_text", osd_msg_text);
 }
 
 /* this function gets the osd properties. */
@@ -177,7 +180,8 @@ static void osd_get_prefs(void) {
 	osd_lines	= purple_prefs_get_int("/plugins/gtk/X11/pidgin-osd/lines");
 	osd_xoffset	= purple_prefs_get_int("/plugins/gtk/X11/pidgin-osd/xoffset");
 	osd_yoffset	= purple_prefs_get_int("/plugins/gtk/X11/pidgin-osd/yoffset");
-	osd_msgs	= purple_prefs_get_int("/plugins/gtk/X11/pidgin-osd/msgs");
+	osd_non_msgs = purple_prefs_get_int("/plugins/gtk/X11/pidgin-osd/non_msgs");
+	osd_msg_text = purple_prefs_get_int("/plugins/gtk/X11/pidgin-osd/msg_text");
 }
 
 /* this function sets the osd font to use. */
@@ -273,7 +277,8 @@ void osd_set_prefs(void) {
 	purple_prefs_set_int("/plugins/gtk/X11/pidgin-osd/lines", osd_lines);
 	purple_prefs_set_int("/plugins/gtk/X11/pidgin-osd/xoffset", osd_xoffset);
 	purple_prefs_set_int("/plugins/gtk/X11/pidgin-osd/yoffset", osd_yoffset);
-	purple_prefs_set_int("/plugins/gtk/X11/pidgin-osd/msgs", osd_msgs);
+	purple_prefs_set_int("/plugins/gtk/X11/pidgin-osd/non_msgs", osd_non_msgs);
+	purple_prefs_set_int("/plugins/gtk/X11/pidgin-osd/msg_text", osd_msg_text);
 
 	/* check if another osd exist. */
 	if (osd) {
@@ -323,7 +328,8 @@ static void osd_set_values(GtkWidget *button, GtkWidget *data) {
 	osd_lines	= gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(g_osd_lines));
 	osd_xoffset	= gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(g_osd_xoffset));
 	osd_yoffset	= gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(g_osd_yoffset));
-	osd_msgs	= gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_osd_msgs)) == TRUE ? 1 : 0;
+	osd_non_msgs = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_osd_non_msgs)) == TRUE ? 1 : 0;
+	osd_msg_text = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_osd_msg_text)) == TRUE ? 1 : 0;
 
 	/* save the configuration values */
 	osd_set_prefs();
@@ -425,7 +431,8 @@ static void osd_read_values() {
 	gtk_spin_button_set_value(GTK_SPIN_BUTTON(g_osd_yoffset), osd_yoffset);
 
 	/* get the osd active status. */
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(g_osd_msgs), osd_msgs != 0 ? TRUE : FALSE);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(g_osd_non_msgs), osd_non_msgs != 0 ? TRUE : FALSE);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(g_osd_msg_text), osd_msg_text != 0 ? TRUE : FALSE);
 }
 
 /* this function shows the configuration window. */
@@ -452,7 +459,7 @@ static GtkWidget *osd_get_config_frame(PurplePlugin *plugin) {
 	vbox = gtk_vbox_new(FALSE, 5);
 	gtk_container_add(GTK_CONTAINER(frame), vbox);
 
-	table = gtk_table_new (9, 3, FALSE);
+	table = gtk_table_new (10, 3, FALSE);
 	gtk_box_pack_start(GTK_BOX(vbox), table, FALSE, FALSE, 5);
 
 	/* font properties */
@@ -528,10 +535,15 @@ static GtkWidget *osd_get_config_frame(PurplePlugin *plugin) {
 	gtk_table_attach(GTK_TABLE(table), g_osd_lines, 1, 3, 8, 9, opts, opts, 3, 3);
 	gtk_tooltips_set_tip(GTK_TOOLTIPS(g_tooltips), g_osd_lines, "The number of lines that can be displayed when several messages appear at the same time", "");
 
-	/* show incoming messages on osd */
-	g_osd_msgs = gtk_check_button_new_with_label("Show incoming messages");
-	gtk_table_attach(GTK_TABLE(table), g_osd_msgs, 0, 3, 9, 10, opts, opts, 3, 3);
-	gtk_tooltips_set_tip(GTK_TOOLTIPS(g_tooltips), g_osd_msgs, "If on will also show the incomming messages as OSD notifications", "");
+	/* show user events notifications */
+	g_osd_non_msgs = gtk_check_button_new_with_label("Show notifications of user events");
+	gtk_table_attach(GTK_TABLE(table), g_osd_non_msgs, 0, 3, 9, 10, opts, opts, 3, 3);
+	gtk_tooltips_set_tip(GTK_TOOLTIPS(g_tooltips), g_osd_non_msgs, "If on will also notify of status changes and other user events", "");
+
+	/* show message text */
+	g_osd_msg_text = gtk_check_button_new_with_label("Show message text in the notification");
+	gtk_table_attach(GTK_TABLE(table), g_osd_msg_text, 0, 3, 10, 11, opts, opts, 3, 3);
+	gtk_tooltips_set_tip(GTK_TOOLTIPS(g_tooltips), g_osd_msg_text, "If on will also show message text in the notification", "");
 
 	/* save settings */
 	button = gtk_button_new_with_mnemonic("_Set");
@@ -552,13 +564,15 @@ static GtkWidget *osd_get_config_frame(PurplePlugin *plugin) {
 /* this function creates the osd text for the buddy actions. */
 static void osd_notify(PurpleBuddy *buddy, const char *buddy_action) {
 
-	/* common variables. */
-	char text_buffer[1000];
-	char *disp_name = PURPLE_BUDDY_DISP_NAME(buddy);
+	if (osd_non_msgs) {
+		/* common variables. */
+		char text_buffer[1000];
+		char *disp_name = PURPLE_BUDDY_DISP_NAME(buddy);
 
-	/* format and print the text. */
-	sprintf(text_buffer, "%.300s %.300s", disp_name, buddy_action);
-	osd_print(text_buffer);
+		/* format and print the text. */
+		sprintf(text_buffer, "%.300s %.300s", disp_name, buddy_action);
+		osd_print(text_buffer);
+	}
 }
 
 /* this function creates the osd text for the incoming buddy messages. */
@@ -608,15 +622,15 @@ static void buddy_signed_off_cb(PurpleBuddy *buddy, void *data) {
 
 /* osd notification for incoming message. */
 static void buddy_msg_received_cb(PurpleAccount *acct, char *sender, char *message, PurpleConversation *conv, int *flags) {
-
-	/* check if we have already a message. */
-	if (osd_msgs != 0) {
-		char *disp_name = sender;
-		PurpleBuddy *buddy = purple_find_buddy(acct, sender);
-		if (buddy) {
-			disp_name = PURPLE_BUDDY_DISP_NAME(buddy);
-		}
+	char *disp_name = sender;
+	PurpleBuddy *buddy = purple_find_buddy(acct, sender);
+	if (buddy) {
+		disp_name = PURPLE_BUDDY_DISP_NAME(buddy);
+	}
+	if (osd_msg_text) {
 		osd_notify_txt("&lt;%.100s&gt; : %.300s", disp_name, message);
+	} else {
+		osd_notify_txt("message from %.100s", disp_name);
 	}
 }
 
