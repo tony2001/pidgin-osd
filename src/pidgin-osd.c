@@ -11,6 +11,7 @@
 #include "plugin.h"
 #include "version.h"
 #include "gtkplugin.h"
+#include "gtkutils.h"
 
 /* xosd includes. */
 #include "xosd.h"
