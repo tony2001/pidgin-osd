@@ -1,0 +1,14 @@
+FAQ - Frequently Asked Questions
+================================
+
+Q: What is 'pidgin-osd'?
+A: 'pidgin-osd' is an application to print pidgin events to the X
+   console.
+
+Q: What is needed?
+A: You need a working pidgin.
+
+Q: Are there any differences between 'pidgin-osd' and 'gaimnosd'?
+A: Yes. The glib and pidgin returns any incoming message as UTF-8
+   to the plugins, but if you don't use UTF-8 you will not see the
+   special characters. This was fixed in 'pidgin-osd'.

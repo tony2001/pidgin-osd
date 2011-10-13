@@ -1,0 +1,27 @@
+Introduction
+============
+
+'pidgin-osd' is an application to print events on the X root screen
+on recieving incoming messages from pidgin. It uses the xosd
+library to print various events on the X console.
+
+'pidgin-osd' is based on the gaimnosd 0.7 version, the last public
+available one. I created this plugin because at time of compiling
+pidgin there was no working osd plugin available.
+
+Manual
+======
+
+It is a good idea to read the `FAQ' file.
+
+Reporting Bugs
+==============
+
+Bug reports for 'pidgin-osd' can be send to me directly.
+
+    * Maik Broemme <mbroemme@plusserver.de>
+
+Enjoy!
+
+Maik Broemme <mbroemme@plusserver.de>
+http://www.babelize.org/
