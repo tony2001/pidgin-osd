@@ -624,9 +624,16 @@ static void buddy_signed_off_cb(PurpleBuddy *buddy, void *data) {
 static void buddy_msg_received_cb(PurpleAccount *acct, char *sender, char *message, PurpleConversation *conv, int *flags) {
 	char *disp_name = sender;
 	PurpleBuddy *buddy = purple_find_buddy(acct, sender);
+
 	if (buddy) {
 		disp_name = PURPLE_BUDDY_DISP_NAME(buddy);
 	}
+
+	if (conv && conv->ui_ops && conv->ui_ops->has_focus && conv->ui_ops->has_focus(conv) == TRUE) {
+		/* do not notify if the conversation is currently in focus */
+		return;
+	}
+
 	if (osd_msg_text) {
 		osd_notify_txt("&lt;%.100s&gt; : %.300s", disp_name, message);
 	} else {
